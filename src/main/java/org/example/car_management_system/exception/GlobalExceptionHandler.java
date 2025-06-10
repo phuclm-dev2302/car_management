@@ -1,10 +1,10 @@
-package org.example.car_management_system.config.exception;
+package org.example.car_management_system.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.car_management_system.dto.response.ResponseError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -43,5 +43,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseError<>(404, ex.getMessage()));
     }
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ResponseError<Object>> handleUsernameNotFound(UsernameNotFoundException ex){
+        log.error("User not found with username {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseError<>(404, ex.getMessage()));
+    }
 
+    @ExceptionHandler(UserExistException.class)
+    public ResponseEntity<ResponseError<Object>> handleUsernameNotFound(UserExistException ex){
+        log.error("User has been exist {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseError<>(404, ex.getMessage()));
+    }
+
+    @ExceptionHandler(PasswordNotMatchException.class)
+    public ResponseEntity<ResponseError<Object>> handleUsernameNotFound(PasswordNotMatchException ex){
+        log.error("Password not match {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseError<>(404, ex.getMessage()));
+    }
 }

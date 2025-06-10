@@ -1,4 +1,4 @@
-package org.example.car_management_system.config.exception;
+package org.example.car_management_system.exception;
 
 public class CarNotFoundException extends RuntimeException {
     public CarNotFoundException(String message) {

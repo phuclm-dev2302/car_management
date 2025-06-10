@@ -5,9 +5,11 @@ import org.example.car_management_system.dto.response.ManufactoryResponse;
 import org.example.car_management_system.dto.response.ResponseData;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ManufactureService {
     ResponseData<List<ManufactoryResponse>> getAll(int page, int size);
     ManufactoryResponse create(CreateManufactureRequest request);
+    void deleteManufacture(UUID id);
 }
 

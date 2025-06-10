@@ -2,10 +2,12 @@ package org.example.car_management_system.service.Impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.car_management_system.config.exception.CarNotFoundException;
-import org.example.car_management_system.config.exception.ManufactureNotFoundException;
+import org.example.car_management_system.exception.CarNotFoundException;
+import org.example.car_management_system.exception.ManufactureNotFoundException;
 import org.example.car_management_system.dto.request.CreateCarRequest;
+import org.example.car_management_system.dto.request.UpdateCartRequest;
 import org.example.car_management_system.dto.response.CarResponse;
 import org.example.car_management_system.dto.response.ResponseData;
 import org.example.car_management_system.enums.ModelEnums;
@@ -17,10 +19,12 @@ import org.example.car_management_system.repository.CarRepository;
 import org.example.car_management_system.repository.ManufactureRepository;
 import org.example.car_management_system.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +42,7 @@ public class CarServiceImpl implements CarService {
         QCar car = QCar.car;
 
         List<Car> result = queryFactory.selectFrom(car)
-                .offset((long) page * size)
+                .offset((long) (page - 1) * size)
                 .limit(size)
                 .fetch();
 
@@ -52,7 +56,7 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public ResponseData<List<CarResponse>> search(int page,int size,String name, ModelEnums model, String manufactureName, LocalDate buyDate) {
+    public ResponseData<List<CarResponse>> search(int page, int size, String name, ModelEnums model, String manufactureName, LocalDate buyDate) {
         QCar car = QCar.car;
 
         BooleanExpression predicate = car.isNotNull();
@@ -75,7 +79,7 @@ public class CarServiceImpl implements CarService {
 
         List<Car> cars = queryFactory
                 .selectFrom(car)
-                .offset((long) size*page)
+                .offset((long) (page - 1) * size)
                 .leftJoin(car.manufacture).fetchJoin()
                 .where(predicate)
                 .limit(size)
@@ -91,7 +95,8 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public CarResponse create(CreateCarRequest request){
+    @Transactional
+    public CarResponse create(CreateCarRequest request) {
         Manufacture manufacture = manufactureRepository.findById(request.getManufactureId())
                 .orElseThrow(() -> new ManufactureNotFoundException(
                         "Manufacture not found with id: " + request.getManufactureId()));
@@ -104,4 +109,29 @@ public class CarServiceImpl implements CarService {
         Car saved = carRepository.save(car);
         return carMapper.toDto(car);
     }
+
+    @Override
+    @Transactional
+    public CarResponse updateCar(UUID id, UpdateCartRequest request) {
+        try {
+            Car car = carRepository.findById(id)
+                    .orElseThrow(() -> new CarNotFoundException("Car not found with id: " + id));
+
+            Manufacture manufacture = manufactureRepository.findById(request.getManufactureId())
+                    .orElseThrow(() -> new ManufactureNotFoundException("Manufacture not found with id: " + request.getManufactureId()));
+
+            car.setName(request.getName());
+            car.setModel(request.getModel());
+            car.setManufacture(manufacture);
+
+            Car updated = carRepository.save(car);
+
+            return carMapper.toDto(updated);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            throw new RuntimeException("Dữ liệu đã bị thay đổi bởi người khác. Vui lòng tải lại.");
+        }
+    }
+
+
+
 }

@@ -1,9 +1,10 @@
 package org.example.car_management_system.service.Impl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.car_management_system.config.exception.DuplicateManufactureException;
-import org.example.car_management_system.config.exception.ManufactureNotFoundException;
+import org.example.car_management_system.exception.DuplicateManufactureException;
+import org.example.car_management_system.exception.ManufactureNotFoundException;
 import org.example.car_management_system.dto.request.CreateManufactureRequest;
 import org.example.car_management_system.dto.response.ManufactoryResponse;
 import org.example.car_management_system.dto.response.ResponseData;
@@ -15,6 +16,7 @@ import org.example.car_management_system.service.ManufactureService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class ManufactureServiceImpl implements ManufactureService {
         QManufacture manufacture = QManufacture.manufacture;
 
         List<Manufacture> result = queryFactory.selectFrom(manufacture)
-                .offset((long) page * size)
+                .offset((long) (page-1) * size)
                 .limit(size)
                 .fetch();
 
@@ -48,9 +50,8 @@ public class ManufactureServiceImpl implements ManufactureService {
 
         // Kiểm tra name và country có tồn tại chưa
         Manufacture existing = queryFactory.selectFrom(manufacture)
-                .where(
-                        manufacture.name.eq(request.getName())
-                                .and(manufacture.country.eq(request.getCountry()))
+                .where(  manufacture.name.eq(request.getName())
+                        .and(manufacture.country.eq(request.getCountry()))
                 )
                 .fetchOne();
 
@@ -63,6 +64,15 @@ public class ManufactureServiceImpl implements ManufactureService {
         Manufacture saved = manufactureRepository.save(newManufacture);
 
         return manufactureMapper.toDto(saved);
+    }
+
+    @Transactional
+    @Override
+    public void deleteManufacture(UUID id) {
+        Manufacture manufacture = manufactureRepository.findById(id)
+                .orElseThrow(() -> new ManufactureNotFoundException("Manufacture not found with id: " + id));
+
+        manufactureRepository.delete(manufacture);
     }
 
 }
