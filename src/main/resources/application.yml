@@ -2,9 +2,9 @@ spring:
   application:
     name: car-system-management
   datasource:
-    url: jdbc:postgresql://localhost:6000/car_system_db
-    username: postgres
-    password: 123456
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://my-postgres-postgresql.default.svc.cluster.local:5432/car_system_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,10 +12,48 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+      hikari:
+        pool-name: CarManagementHikariCP
+        maximum-pool-size: 20
+        minimum-idle: 5
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        connection-timeout: 30000
+  output:
+    ansi:
+      enabled: ALWAYS
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: lephuc04b3@gmail.com
+    password: gbiz gnto jtfi cykz
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+    from: lephuc04b3@gmail.com
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics
 
 server:
-  port: 8080
-
+  port: 8443
+  ssl:
+    enabled: true
 
 openapi:
   service:
@@ -24,11 +62,23 @@ openapi:
     title: API Service
     version: 1.0.0
 
-
+app:
+  security:
+    jwt:
+      privateKey: Xysbfhkwjkjauuahsbdbsbasd
+      prefix: Bearer
+      authHeader: Authorization
+      keyExpiresAt: 3600000
+      refreshKey: Ydhasdhsbbashdwhehwhhsdhabs
+      refreshExpiresAt: 9000000
 
 # Logging
 logging:
+  config: classpath:logback-spring.xml
   level:
     org.springdoc: DEBUG
     org.springframework.web: INFO
     org.example: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.example.car_management_system: INFO
+    org.springframework.security: DEBUG
