@@ -13,11 +13,6 @@ import java.util.*;
 
 @Aspect
 @Component
-//Aspect	@Aspect + class LoggingAspect
-//Join Point	Các method trong controller
-//Advice	Method logRequestAndResponse(...) với @Around
-//Pointcut	"execution(* org.example.car_management_system.controller..*(..))"
-//Weaving	Được Spring thực hiện tự động thông qua @Component
 @Slf4j
 public class LoggingAspect {
 

@@ -11,9 +11,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String QUEUE_NAME = "queue-name";
-    public static final String EXCHANGE_NAME = "send-mail";
-    public static final String ROUTING_KEY = "send-mail-topic";
+    // MAIL_QUEUE and DIRECT EXCHANGE
+    public static final String MAIL_QUEUE = "mail-queue";
+    public static final String EXCHANGE_NAME = "send-mail-active";
+    public static final String ROUTING_KEY = "send-mail";
+
+    // Queue & Exchange mới (Fanout)
+    public static final String NOTIFICATION_QUEUE = "notification-queue";
+    public static final String FANOUT_EXCHANGE = "fanout-exchange";
 
     @Bean
     public MessageConverter jsonMessageConverter() {
@@ -29,7 +34,7 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue queue() {
-        return new Queue(QUEUE_NAME, false);
+        return new Queue(MAIL_QUEUE, false);
     }
 
     @Bean
@@ -42,5 +47,22 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(queue)
                 .to(exchange)
                 .with(ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue notificationQueue() {
+        return new Queue(NOTIFICATION_QUEUE, false);
+    }
+
+    // Fanout exchange mới
+    @Bean
+    public FanoutExchange fanoutExchange() {
+        return new FanoutExchange(FANOUT_EXCHANGE);
+    }
+
+    @Bean
+    public Binding notificationBinding() {
+        return BindingBuilder.bind(notificationQueue())
+                .to(fanoutExchange());
     }
 }

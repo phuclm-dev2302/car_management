@@ -5,8 +5,10 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 import org.example.car_management_system.model.Role;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, UUID> , QuerydslPredicateExecutor<Role> {
+    Optional<Role> findByName(String name);
 }

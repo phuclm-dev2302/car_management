@@ -12,6 +12,6 @@ public class RabbitMQProducer {
     private RabbitTemplate rabbitTemplate;
 
     public void sendMessageMail(OtpEmailMessage message){
-        rabbitTemplate.convertAndSend("send-mail", "send-mail-topic", message);
+        rabbitTemplate.convertAndSend("send-mail-active", "send-mail", message);
     }
 }

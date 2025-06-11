@@ -1,10 +1,14 @@
 spring:
+  batch:
+    job:
+      enabled: false
   application:
     name: car-system-management
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://my-postgres-postgresql.default.svc.cluster.local:5432/car_system_db}
+#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://my-postgres-postgresql.default.svc.cluster.local:5432/car_system_db}
+    url: jdbc:postgresql://localhost:5432/car_system_db
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,6 +23,11 @@ spring:
         idle-timeout: 600000
         max-lifetime: 1800000
         connection-timeout: 30000
+#  sql:
+#    init:
+#      mode: always
+#      schema-locations: classpath:/org/springframework/batch/core/schema-postgresql.sql
+
   output:
     ansi:
       enabled: ALWAYS
@@ -51,9 +60,9 @@ management:
         include: health, metrics
 
 server:
-  port: 8443
-  ssl:
-    enabled: true
+  port: 8080
+#  ssl:
+#    enabled: true
 
 openapi:
   service:

@@ -64,19 +64,15 @@ public class CarServiceImpl implements CarService {
         if (name != null && !name.isEmpty()) {
             predicate = predicate.and(car.name.containsIgnoreCase(name));
         }
-
         if (model != null) {
             predicate = predicate.and(car.model.eq(model));
         }
-
         if (manufactureName != null && !manufactureName.isEmpty()) {
             predicate = predicate.and(car.manufacture.name.containsIgnoreCase(manufactureName));
         }
-
         if (buyDate != null) {
             predicate = predicate.and(car.buyDate.eq(buyDate));
         }
-
         List<Car> cars = queryFactory
                 .selectFrom(car)
                 .offset((long) (page - 1) * size)
@@ -88,9 +84,7 @@ public class CarServiceImpl implements CarService {
         if (cars.isEmpty()) {
             throw new CarNotFoundException("No cars matched search criteria");
         }
-
         List<CarResponse> responses = carMapper.toDtoList(cars);
-
         return new ResponseData<>(200, "Search completed", responses);
     }
 

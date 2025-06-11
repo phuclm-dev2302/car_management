@@ -19,9 +19,9 @@ public class MailServiceImpl implements MailService {
     private final JavaMailSender mailSender;
 
     @Override
-    @RabbitListener(queues = "queue-name")
+    @RabbitListener(queues = "mail-queue")
     public void sendOtpEmail(OtpEmailMessage message) {
-        log.error("Nhận OTP: " + message.getOtp() + " cho email: " + message.getEmail());
+        log.info("Nhận OTP: " + message.getOtp() + " cho email: " + message.getEmail());
         String otpCode = message.getOtp();
         String email = message.getEmail();
 
